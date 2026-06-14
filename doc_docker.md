@@ -43,6 +43,7 @@ services:
       #IPINFO_APIKEY: "your api key"
       #DISTANCE: "km"
       #WEBPORT: 8080
+      #TZ: "UTC"
     ports:
       - "80:8080" # webport mapping (host:container)
 ```
@@ -79,6 +80,7 @@ Here's a list of additional environment variables available in this mode:
 * __`IPINFO_APIKEY`__: API key for [ipinfo.io](https://ipinfo.io). Optional, but required if you want to use the full [ipinfo.io](https://ipinfo.io) APIs (required for distance measurement)
 * __`DISTANCE`__: When `DISABLE_IPINFO` is set to false, this specifies how the distance from the server is measured. Can be either `km` for kilometers, `mi` for miles, or an empty string to disable distance measurement. Requires an [ipinfo.io](https://ipinfo.io) API key. Default value: `km`
 * __`WEBPORT`__: Allows choosing a custom port for the included web server. Default value: `8080`. Note that you will have to expose it through docker with the -p argument. This is not the port where the service is exposed outside docker!
+* __`TZ`__: Timezone for the application and database timestamps. This affects when test results are recorded. Use [IANA timezone identifiers](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (e.g., `America/New_York`, `Europe/London`, `Asia/Tokyo`, `UTC`). Default value: `UTC`
 
 If telemetry is enabled, a stats page will be available at `http://your.server/results/stats.php`, but a password must be specified.
 
@@ -95,6 +97,16 @@ This command starts LibreSpeed in standalone mode, with persisted telemetry, ID 
 ```shell
 docker run -e MODE=standalone -e TELEMETRY=true -e ENABLE_ID_OBFUSCATION=true -e PASSWORD="yourPasswordHere" -e WEBPORT=86 -p 86:86 -v $PWD/db-dir/:/database -it ghcr.io/librespeed/speedtest
 ```
+
+#### Example Standalone Mode with custom timezone
+
+This command starts LibreSpeed in standalone mode with a custom timezone (e.g., Eastern Time):
+
+```shell
+docker run -e MODE=standalone -e TZ=America/New_York -p 80:8080 -it ghcr.io/librespeed/speedtest
+```
+
+Common timezone examples: `America/Chicago`, `Europe/London`, `Asia/Tokyo`, `Australia/Sydney`, `UTC`
 
 ## Multiple Points of Test
 

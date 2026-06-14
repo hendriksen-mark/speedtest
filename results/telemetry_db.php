@@ -4,6 +4,13 @@ require_once 'idObfuscation.php';
 
 define('TELEMETRY_SETTINGS_FILE', 'telemetry_settings.php');
 
+// Set PHP timezone from environment variable or use UTC as default
+if (!empty(getenv('TZ'))) {
+    date_default_timezone_set(getenv('TZ'));
+} else {
+    date_default_timezone_set('UTC');
+}
+
 /**
  * @return PDO|false
  */

@@ -9,6 +9,16 @@ echo "REDACT_IP_ADDRESSES: $REDACT_IP_ADDRESSES"
 echo "DB_TYPE: $DB_TYPE"
 echo "ENABLE_ID_OBFUSCATION: $ENABLE_ID_OBFUSCATION"
 echo "GDPR_EMAIL: $GDPR_EMAIL"
+echo "TZ: $TZ"
+
+# Set system timezone
+if [ ! -z "$TZ" ]; then
+  export TZ=$TZ
+  if is_alpine; then
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
+    echo $TZ > /etc/timezone
+  fi
+fi
 
 set -e
 #set -x

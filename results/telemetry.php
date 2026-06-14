@@ -1,5 +1,12 @@
 <?php
 
+// Set PHP timezone from environment variable or use UTC as default
+if (!empty(getenv('TZ'))) {
+    date_default_timezone_set(getenv('TZ'));
+} else {
+    date_default_timezone_set('UTC');
+}
+
 require 'telemetry_settings.php';
 require_once 'telemetry_db.php';
 require_once '../backend/getIP_util.php';
