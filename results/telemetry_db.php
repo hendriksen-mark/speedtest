@@ -98,9 +98,25 @@ function getPdo($returnErrorMessage = false)
             $dsn = 'mysql:'
                 .'host='.$MySql_hostname
                 .';port='.$MySql_port
-                .';dbname='.$MySql_databasename;
+                .';dbname='.$MySql_databasename
+                .';charset=utf8mb4';
 
-            return new PDO($dsn, $MySql_username, $MySql_password, $pdoOptions);
+            $pdo = new PDO($dsn, $MySql_username, $MySql_password, $pdoOptions);
+            
+            // Set timezone for the connection from TZ environment variable
+            $tz = getenv('TZ') ?: 'UTC';
+            // Convert PHP timezone to MySQL format (e.g., America/New_York -> -05:00)
+            try {
+                $timezone = new DateTimeZone($tz);
+                $now = new DateTime('now', $timezone);
+                $offset = $now->format('P'); // Returns offset like +00:00, -05:00, etc.
+                $pdo->exec("SET time_zone = '$offset'");
+            } catch (Exception $e) {
+                // If timezone conversion fails, use UTC
+                $pdo->exec("SET time_zone = '+00:00'");
+            }
+            
+            return $pdo;
         }
 
         if ('sqlite' === $db_type) {
@@ -134,7 +150,7 @@ function getPdo($returnErrorMessage = false)
                 `id`        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                 `ispinfo`   text,
                 `extra`     text,
-                `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `timestamp` timestamp NOT NULL,
                 `ip`        text NOT NULL,
                 `ua`        text NOT NULL,
                 `lang`      text NOT NULL,
@@ -207,13 +223,23 @@ function insertSpeedtestUser($ip, $ispinfo, $extra, $ua, $lang, $dl, $ul, $ping,
     }
 
     try {
+        // Generate timestamp in the configured timezone for consistency across all database types
+        $tz = getenv('TZ') ?: 'UTC';
+        try {
+            $timezone = new DateTimeZone($tz);
+            $now = new DateTime('now', $timezone);
+            $timestamp = $now->format('Y-m-d H:i:s');
+        } catch (Exception $e) {
+            $timestamp = date('Y-m-d H:i:s'); // Fallback to system time
+        }
+        
         $stmt = $pdo->prepare(
             'INSERT INTO speedtest_users
-        (ip,ispinfo,extra,ua,lang,dl,ul,ping,jitter,log)
-        VALUES (?,?,?,?,?,?,?,?,?,?)'
+        (ip,ispinfo,extra,ua,lang,dl,ul,ping,jitter,log,timestamp)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)'
         );
         $stmt->execute([
-            $ip, $ispinfo, $extra, $ua, $lang, $dl, $ul, $ping, $jitter, $log
+            $ip, $ispinfo, $extra, $ua, $lang, $dl, $ul, $ping, $jitter, $log, $timestamp
         ]);
         $id = $pdo->lastInsertId();
     } catch (Exception $e) {
