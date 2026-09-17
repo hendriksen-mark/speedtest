@@ -31,6 +31,17 @@ services:
     ports:
       - "18185:8080"
 
+  standalone-alpine:
+    build:
+      context: ..
+      dockerfile: Dockerfile.alpine
+    environment:
+      - MODE=standalone
+      - WEBPORT=8080
+      - USE_NEW_DESIGN=true
+    ports:
+      - "18187:8080"
+
   standalone-apostrophe:
     build:
       context: ..
@@ -66,6 +77,19 @@ services:
       - ./e2e/fixtures/servers-frontend.json:/servers.json:ro
     ports:
       - "18182:8080"
+
+  frontend-remote:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    depends_on:
+      - backend-testpoint
+    environment:
+      - MODE=frontend
+      - WEBPORT=8080
+      - SERVER_LIST_URL=http://127.0.0.1:18184/tests/e2e/fixtures/servers-frontend-remote.json
+    ports:
+      - "18188:8080"
 
   dual:
     build:

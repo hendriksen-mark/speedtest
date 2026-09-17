@@ -49,7 +49,7 @@ function Speedtest() {
   this._settings = {}; //settings for the speed test worker
   this._state = 0; //0=adding settings, 1=adding servers, 2=server selection done, 3=test running, 4=done
   console.log(
-    "LibreSpeed by Federico Dossena v6.2.0 - https://github.com/librespeed/speedtest"
+    "LibreSpeed by Federico Dossena v6.3.0 - https://github.com/librespeed/speedtest"
   );
 }
 
@@ -239,7 +239,11 @@ Speedtest.prototype = {
       const checkServer = function(server, done) {
         let i = 0;
         server.pingT = -1;
-        if (server.server.indexOf(location.protocol) == -1) done();
+        if (
+          location.protocol === "https:" &&
+          server.server.substring(0, 7).toLowerCase() === "http://"
+        )
+          done();
         else {
           const nextPing = function() {
             if (i++ == PINGS) {

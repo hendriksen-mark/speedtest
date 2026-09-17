@@ -1,7 +1,7 @@
 # LibreSpeed
 
 > by Federico Dossena
-> Version 6.2.0
+> Version 6.3.0
 > [https://github.com/librespeed/speedtest/](https://github.com/librespeed/speedtest/)
 
 ## Introduction
@@ -197,18 +197,20 @@ Requirements:
   * FreeType 2 and its PHP module
   * The PHP gd library
 
-To install the speed test frontend, copy the project files to your web server and keep the modern UI assets next to the HTML files:
+To install the speed test frontend, copy the project files to your web server, keeping the layout they have in the repository:
 
 * `index.html`
 * `index-classic.html`
 * `index-modern.html`
 * `design-switch.js`
 * `config.json`
+* `settings.json`
+* `server-list.json`
 * `speedtest.js`
 * `speedtest_worker.js`
 * `favicon.ico`
 * the `backend` folder
-* the contents of `frontend/`, copied so `styling/`, `javascript/`, `images/`, and `fonts/` sit next to the HTML files
+* the `frontend` folder, copied as a whole: the modern UI loads its assets from `frontend/`
 * Optionally, the `results` folder
 
 __Important:__ The speed test needs read and execute permissions in the installation folder where applicable!
@@ -730,7 +732,7 @@ To keep track of the amount of transferred data, the XHR Level 2 `upload.onprogr
 
 This test has a couple of complications:
 
-* Some browsers don't have a working `upload.onprogress` event. For this, we use a small blobs instead of a large one and we keep track of progress using the `onload` event. This is referred to as IE11 Workaround (but the same bug was also found in some versions of Edge and Safari)
+* Some browsers don't have a working `upload.onprogress` event. For this, we use a small blobs instead of a large one and we keep track of progress using the `onload` event. This is referred to as IE11 Workaround. Browsers that expose no usable `xhr.upload` object, such as IE11, select it automatically through feature detection. Some versions of Edge and the PlayStation 4 browser do have an `xhr.upload` object whose events never fire, which feature detection cannot see, so those two are still matched by user agent. Safari is __not__ affected and uses the regular, more accurate upload test
 * When `mpot` is set to `true`, an empty request must first be sent in order to load the CORS headers before the test can start
 
 See the code for more implementation details.
